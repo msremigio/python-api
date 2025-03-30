@@ -33,7 +33,7 @@ def get_purchase_orders_by_id(id):
     return jsonify({'message': f'No order found for id {id}.'})
 
 @app.route('/purchase_orders', methods=['POST'] )
-def create_purchase_order():
+def post_purchase_order():
     request_data = request.get_json()
     order = {
         'id': request_data['id'],
@@ -45,7 +45,26 @@ def create_purchase_order():
     
     return jsonify(order)
 
+@app.route('/purchase_order/<int:id>/items', methods=['GET'])
+def get_purchase_orders_items(id):
+    for order in purchase_orders:
+        if id == order['id']:
+            return jsonify(order['items'])
+    return jsonify({'message': f'No order found for id {id}.'})
 
+@app.route('/purchase_order/<int:id>/items', methods=['PUT'])
+def put_order_items(id):
+    request_data = request.get_json()
+    order_item = {
+        'id': request_data['id'],
+        'description': request_data['description'],
+        'price': request_data['price']
+    }
+    for order in purchase_orders:
+        if id == order['id']:
+            order['items'].append(order_item)
+            return jsonify(order)
 
+    return jsonify({'message': f'No order found for id {id}.'})
 
 app.run(port=5000)
