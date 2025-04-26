@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 
 app = Flask(__name__)
 
@@ -10,7 +10,8 @@ purchase_orders = [
             {
                 'id': 1,
                 'description': 'First item from purchase order 1',
-                'price': 20.99
+                'price': 20.99,
+                'quantity': 2
             }
         ]
     }
@@ -20,6 +21,10 @@ purchase_orders = [
 @app.route('/', methods=['GET'])
 def home():
     return "Hello World!"
+
+@app.errorhandler(400)
+def bad_request(e):
+     return jsonify(error = str(e)), 400
 
 @app.route('/purchase_orders', methods=['GET'])
 def get_purchase_orders():
@@ -55,14 +60,11 @@ def get_purchase_orders_items(id):
 @app.route('/purchase_order/<int:id>/items', methods=['PUT'])
 def put_order_items(id):
     request_data = request.get_json()
-    order_item = {
-        'id': request_data['id'],
-        'description': request_data['description'],
-        'price': request_data['price']
-    }
+    if type(request_data) != list:
+        abort(400, description="An order expects an array of item(s).")
     for order in purchase_orders:
         if id == order['id']:
-            order['items'].append(order_item)
+            _ = [order['items'].append(order_item) for order_item in request_data]
             return jsonify(order)
 
     return jsonify({'message': f'No order found for id {id}.'})
