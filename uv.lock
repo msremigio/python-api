@@ -126,11 +126,15 @@ name = "python-api"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "flask" },
     { name = "flask-restful" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "flask-restful", specifier = ">=0.3.10" }]
+requires-dist = [
+    { name = "flask", specifier = ">=3.1.0" },
+    { name = "flask-restful", specifier = ">=0.3.10" },
+]
 
 [[package]]
 name = "pytz"
