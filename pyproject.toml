@@ -1,0 +1,9 @@
+[project]
+name = "python-api"
+version = "0.1.0"
+description = "Implementation of a RESTful Python API simulating purchase orders from a store."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask-restful>=0.3.10",
+]
