@@ -21,9 +21,11 @@ def test_get_purchase_orders_by_id(test_client):
     assert response.json['description'] == 'Purchase order 1'
 
 def test_get_purchase_orders_by_id_not_found(test_client):
-    response = test_client.get('/purchase_orders/999')
+    id = 999
+    response = test_client.get(f'/purchase_orders/{id}')
     
-    assert response.json['message'] == 'No order found for id 999.'
+    assert response.status_code == 404
+    assert response.json['error'] == f'404 Not Found: No order found for id {id}.'
 
 def test_post_purchase_orders(test_client):
     body = [{'id': 2, 'description': 'Purchase order 2'}, {'id': 3, 'description': 'Purchase order 3'}]
@@ -62,9 +64,11 @@ def test_get_purchase_orders_items_by_id(test_client):
     assert response.json[0]['quantity'] == 2
 
 def test_get_purchase_orders_items_by_id_not_found(test_client):
-    response = test_client.get('/purchase_orders/999/items')
-
-    assert response.json['message'] == 'No order found for id 999.'
+    id = 999
+    response = test_client.get(f'/purchase_orders/{id}')
+    
+    assert response.status_code == 404
+    assert response.json['error'] == f'404 Not Found: No order found for id {id}.'
 
 def test_put_purchase_orders_items_by_id(test_client): 
     body = [{'id': 2, 'description': 'Second item from purchase order 1', 'price': 99.99, 'quantity': 3}, {'id': 3, 'description': 'Third item from purchase order 1', 'price': 49.90, 'quantity': 7}]
@@ -86,15 +90,17 @@ def test_put_purchase_orders_items_by_id(test_client):
     assert response.json['items'][2]['quantity'] == body[1]['quantity']
 
 def test_put_purchase_orders_items_by_id_not_found(test_client):
-    body = [{'id': 1, 'description': 'First item from purchase order 999', 'price': 99.99, 'quantity': 3}]
+    id = 999
+    body = [{'id': 1, 'description': f'First item from purchase order {id}', 'price': 99.99, 'quantity': 3}]
 
     response = test_client.put(
-        'purchase_orders/999/items',
+        f'purchase_orders/{id}/items',
         data=json.dumps(body),
         content_type='application/json'
     )
 
-    assert response.json['message'] == 'No order found for id 999.' 
+    assert response.status_code == 404
+    assert response.json['error'] == f'404 Not Found: No order found for id {id}.'
 
 def test_put_purchase_orders_items_by_id_error(test_client):
     body = {'id': 2, 'description': 'Second item from purchase order 1', 'price': 99.99, 'quantity': 3}

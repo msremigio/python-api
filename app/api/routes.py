@@ -21,6 +21,10 @@ purchase_orders = [
 def bad_request(e):
      return jsonify(error = str(e)), 400
 
+@api_blueprint.errorhandler(404)
+def not_found(e):
+     return jsonify(error = str(e)), 404
+
 @api_blueprint.route('/', methods=['GET'])
 def home():
     return jsonify({'message': 'Welcome to the ***purchase_orders*** API homepage!'})
@@ -34,7 +38,7 @@ def get_purchase_orders_by_id(id):
     for order in purchase_orders:
         if id == order['id']:
             return jsonify(order)
-    return jsonify({'message': f'No order found for id {id}.'})
+    abort(404, description=f"No order found for id {id}.")
 
 @api_blueprint.route('/purchase_orders', methods=['POST'] )
 def post_purchase_order():
@@ -56,7 +60,7 @@ def get_purchase_orders_items(id):
     for order in purchase_orders:
         if id == order['id']:
             return jsonify(order['items'])
-    return jsonify({'message': f'No order found for id {id}.'})
+    abort(404, description=f"No order found for id {id}.")
 
 @api_blueprint.route('/purchase_orders/<int:id>/items', methods=['PUT'])
 def put_order_items(id):
@@ -68,4 +72,4 @@ def put_order_items(id):
             _ = [order['items'].append(order_item) for order_item in request_data]
             return jsonify(order)
 
-    return jsonify({'message': f'No order found for id {id}.'})
+    abort(404, description=f"No order found for id {id}.")
