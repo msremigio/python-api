@@ -1,4 +1,7 @@
 from flask import Blueprint, jsonify, request, abort
+from app.extensions import db
+from app.models.purchase_orders import PurchaseOrdersModel
+
 
 api_blueprint = Blueprint('api', __name__)
 
@@ -31,7 +34,12 @@ def home():
 
 @api_blueprint.route('/purchase_orders', methods=['GET'])
 def get_purchase_orders():
-    return jsonify(purchase_orders)    
+    return jsonify(purchase_orders)
+# def get_purchase_orders():
+#     purchase_orders = db.session.query(PurchaseOrdersModel).all()
+#     if purchase_orders:
+#         return jsonify([po.to_dict() for po in purchase_orders])
+#     abort(404, description=f"No purchase orders found.")
 
 @api_blueprint.route('/purchase_orders/<int:id>', methods=['GET'])
 def get_purchase_orders_by_id(id):
@@ -39,6 +47,11 @@ def get_purchase_orders_by_id(id):
         if id == order['id']:
             return jsonify(order)
     abort(404, description=f"No order found for id {id}.")
+# def get_purchase_orders_by_id(id):
+#     purchase_order = db.session.get(PurchaseOrdersModel, id)
+#     if purchase_order:
+#         return jsonify([purchase_order.to_dict()])
+#     abort(404, description=f"No order found for id {id}.")    
 
 @api_blueprint.route('/purchase_orders', methods=['POST'] )
 def post_purchase_order():
