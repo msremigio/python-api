@@ -1,24 +1,11 @@
 from flask import Blueprint, jsonify, request, abort
 from app.extensions import db
 from app.models.purchase_orders import PurchaseOrdersModel
+from app.models.purchase_orders_items import PurchaseOrdersItemsModel
 
 
 api_blueprint = Blueprint('api', __name__)
 
-purchase_orders = [
-    {
-        'id': 1,
-        'description': 'Purchase order 1',
-        'items': [
-            {
-                'id': 1,
-                'description': 'First item from purchase order 1',
-                'price': 20.99,
-                'quantity': 2
-            }
-        ]
-    }
-]
 
 @api_blueprint.errorhandler(400)
 def bad_request(e):
@@ -34,24 +21,17 @@ def home():
 
 @api_blueprint.route('/purchase_orders', methods=['GET'])
 def get_purchase_orders():
-    return jsonify(purchase_orders)
-# def get_purchase_orders():
-#     purchase_orders = db.session.query(PurchaseOrdersModel).all()
-#     if purchase_orders:
-#         return jsonify([po.to_dict() for po in purchase_orders])
-#     abort(404, description=f"No purchase orders found.")
+    purchase_orders = db.session.query(PurchaseOrdersModel).all()
+    if purchase_orders:
+        return jsonify([po.to_dict() for po in purchase_orders])
+    abort(404, description=f"No purchase orders found.")
 
 @api_blueprint.route('/purchase_orders/<int:id>', methods=['GET'])
 def get_purchase_orders_by_id(id):
-    for order in purchase_orders:
-        if id == order['id']:
-            return jsonify(order)
-    abort(404, description=f"No order found for id {id}.")
-# def get_purchase_orders_by_id(id):
-#     purchase_order = db.session.get(PurchaseOrdersModel, id)
-#     if purchase_order:
-#         return jsonify([purchase_order.to_dict()])
-#     abort(404, description=f"No order found for id {id}.")    
+    purchase_order = db.session.get(PurchaseOrdersModel, id)
+    if purchase_order:
+        return jsonify([purchase_order.to_dict()])
+    abort(404, description=f"No order found for id {id}.")    
 
 @api_blueprint.route('/purchase_orders', methods=['POST'] )
 def post_purchase_order():
@@ -59,20 +39,20 @@ def post_purchase_order():
     if type(request_data) != list:
         abort(400, description="Use an array to POST one or many purchase orders.")
     for po in request_data:
-        order = {
-            'id': po['id'],
-            'description': po['description'],
-            'items': []
-        }
-        purchase_orders.append(order)
-    
+        new_order = PurchaseOrdersModel(description=po['description'])
+        try:
+            db.session.add(new_order)
+            db.session.commit()        
+        except Exception as e:
+            db.session.rollback()
+            abort(400, description=f"{e}")
     return jsonify(request_data)
 
 @api_blueprint.route('/purchase_orders/<int:id>/items', methods=['GET'])
 def get_purchase_orders_items(id):
-    for order in purchase_orders:
-        if id == order['id']:
-            return jsonify(order['items'])
+    purchase_order_items = PurchaseOrdersItemsModel.query.filter_by(purchase_order_id=id).all()
+    if purchase_order_items:
+            return jsonify([po_item.to_dict() for po_item in purchase_order_items])
     abort(404, description=f"No order found for id {id}.")
 
 @api_blueprint.route('/purchase_orders/<int:id>/items', methods=['PUT'])
