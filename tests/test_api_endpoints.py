@@ -6,19 +6,19 @@ def test_get_homepage(test_client):
     assert response.status_code == 200
     assert response.json['message'] == 'Welcome to the ***purchase_orders*** API homepage!'
 
-def test_get_purchase_orders(test_client):
+def test_get_purchase_orders(test_client, seed_test_db):
     response = test_client.get('/purchase_orders')
 
     assert response.status_code == 200
-    assert response.json[0]['id'] == 1
-    assert response.json[0]['description'] == 'Purchase order 1'
+    assert response.json[0]['id'] == seed_test_db['po'].id
+    assert response.json[0]['description'] == seed_test_db['po'].description
 
-def test_get_purchase_orders_by_id(test_client):
-    response = test_client.get('/purchase_orders/1')
+def test_get_purchase_orders_by_id(test_client, seed_test_db):
+    response = test_client.get(f'/purchase_orders/{seed_test_db['po'].id}')
 
     assert response.status_code == 200
-    assert response.json['id'] == 1
-    assert response.json['description'] == 'Purchase order 1'
+    assert response.json['id'] == seed_test_db['po'].id
+    assert response.json['description'] == seed_test_db['po'].description
 
 def test_get_purchase_orders_by_id_not_found(test_client):
     id = 999
@@ -28,7 +28,7 @@ def test_get_purchase_orders_by_id_not_found(test_client):
     assert response.json['error'] == f'404 Not Found: No order found for id {id}.'
 
 def test_post_purchase_orders(test_client):
-    body = [{'id': 2, 'description': 'Purchase order 2'}, {'id': 3, 'description': 'Purchase order 3'}]
+    body = [{'description': 'Test purchase order 2'}, {'description': 'Test purchase order 3'}]
 
     response = test_client.post(
         'purchase_orders',
@@ -37,13 +37,11 @@ def test_post_purchase_orders(test_client):
     )
 
     assert response.status_code == 200
-    assert response.json[0]['id'] == body[0]['id']
     assert response.json[0]['description'] == body[0]['description']
-    assert response.json[1]['id'] == body[1]['id']
     assert response.json[1]['description'] == body[1]['description'] 
 
 def test_post_purchase_orders_error(test_client):
-    body = {'id': 2, 'description': 'Purchase order 2'}
+    body = {'description': 'Purchase order 2'}
 
     response = test_client.post(
         'purchase_orders',
@@ -54,14 +52,14 @@ def test_post_purchase_orders_error(test_client):
     assert response.status_code == 400
     assert response.json['error'] == '400 Bad Request: Use an array to POST one or many purchase orders.'    
 
-def test_get_purchase_orders_items_by_id(test_client):
-    response = test_client.get('/purchase_orders/1/items')
+def test_get_purchase_orders_items_by_id(test_client, seed_test_db):
+    response = test_client.get(f'/purchase_orders/{seed_test_db['po'].id}/items')
 
     assert response.status_code == 200
-    assert response.json[0]['id'] == 1
-    assert response.json[0]['description'] == 'First item from purchase order 1'
-    assert response.json[0]['price'] == 29.99
-    assert response.json[0]['quantity'] == 2
+    assert response.json[0]['id'] == seed_test_db['poi'].id
+    assert response.json[0]['description'] == seed_test_db['poi'].description
+    assert response.json[0]['price'] == seed_test_db['poi'].price
+    assert response.json[0]['quantity'] == seed_test_db['poi'].quantity
 
 def test_get_purchase_orders_items_by_id_not_found(test_client):
     id = 999
@@ -70,20 +68,26 @@ def test_get_purchase_orders_items_by_id_not_found(test_client):
     assert response.status_code == 404
     assert response.json['error'] == f'404 Not Found: No order found for id {id}.'
 
-def test_post_purchase_orders_items_by_id(test_client): 
-    body = [{'id': 2, 'description': 'Second item from purchase order 1', 'price': 99.99, 'quantity': 3}, {'id': 3, 'description': 'Third item from purchase order 1', 'price': 49.90, 'quantity': 7}]
+def test_post_purchase_orders_items_by_id(test_client, seed_test_db): 
+    body = [{'description': f'Second test item from purchase order {seed_test_db["po"].id}', 'price': 99.99, 'quantity': 3}, {'description': f'Third item from purchase order {seed_test_db["po"].id}', 'price': 49.90, 'quantity': 7}]
 
     response = test_client.post(
-        'purchase_orders/1/items',
+        f'purchase_orders/{seed_test_db["po"].id}/items',
         data=json.dumps(body),
         content_type='application/json'
     )
 
     assert response.status_code == 200
+    assert response.json[0]['description'] == body[0]['description']
+    assert response.json[0]['price'] == body[0]['price']
+    assert response.json[0]['quantity'] == body[0]['quantity']
+    assert response.json[1]['description'] == body[1]['description']
+    assert response.json[1]['price'] == body[1]['price']
+    assert response.json[1]['quantity'] == body[1]['quantity']
 
 def test_post_purchase_orders_items_by_id_not_found(test_client):
     id = 999
-    body = [{'id': 1, 'description': f'First item from purchase order {id}', 'price': 99.99, 'quantity': 3}]
+    body = [{'description': f'First item from purchase order {id}', 'price': 99.99, 'quantity': 3}]
 
     response = test_client.post(
         f'purchase_orders/{id}/items',
@@ -95,7 +99,7 @@ def test_post_purchase_orders_items_by_id_not_found(test_client):
     assert response.json['error'] == f'404 Not Found: No order found for id {id}.'
 
 def test_post_purchase_orders_items_by_id_error(test_client):
-    body = {'id': 2, 'description': 'Second item from purchase order 1', 'price': 99.99, 'quantity': 3}
+    body = {'description': 'Second item from purchase order 1', 'price': 99.99, 'quantity': 3}
 
     response = test_client.post(
         'purchase_orders/1/items',
