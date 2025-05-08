@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from flask import Flask
+from flask_migrate import Migrate
 from app.api.routes import api_blueprint
 from app.extensions import db
 
@@ -11,6 +12,8 @@ def create_app(config_class="app.config.Config"):
     app.register_blueprint(api_blueprint)    
 
     db.init_app(app)
+    Migrate(app, db)
+
     with app.app_context():
         db.create_all()
 

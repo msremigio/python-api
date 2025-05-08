@@ -15,7 +15,6 @@ def test_client():
 @pytest.fixture(scope='function')
 def test_db_session():
     connection = db.engine.connect()
-    # transaction = connection.begin()
 
     session_factory = sessionmaker(bind=connection)
     test_session = scoped_session(session_factory)
@@ -25,7 +24,6 @@ def test_db_session():
 
     yield test_session
 
-    # transaction.rollback()
     connection.close()
     test_session.remove()
     db.session = global_session
