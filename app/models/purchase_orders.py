@@ -14,5 +14,5 @@ class PurchaseOrdersModel(db.Model):
             "id": self.id,
             "description": self.description,
             "created_at": self.created_at.isoformat(),
-            "status": self.status
+            "status": self.status.value
         }

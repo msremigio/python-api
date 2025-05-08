@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, abort
 from sqlalchemy.exc import IntegrityError
 from app.extensions import db
+from app.services.purchase_orders_service import PurchaseOrdersService
 from app.models.purchase_orders import PurchaseOrdersModel
 from app.models.purchase_orders_items import PurchaseOrdersItemsModel
 
@@ -21,11 +22,8 @@ def home():
     return jsonify({'message': 'Welcome to the ***purchase_orders*** API homepage!'})
 
 @api_blueprint.route('/purchase_orders', methods=['GET'])
-def get_purchase_orders():
-    purchase_orders = db.session.query(PurchaseOrdersModel).all()
-    if purchase_orders:
-        return jsonify([po.to_dict() for po in purchase_orders])
-    abort(404, description=f"No purchase orders found.")
+def get_purchase_orders():  
+    return PurchaseOrdersService.get_purchase_orders()
 
 @api_blueprint.route('/purchase_orders/<int:id>', methods=['GET'])
 def get_purchase_orders_by_id(id):
