@@ -1,9 +1,6 @@
-from flask import Blueprint, jsonify, request, abort
-from sqlalchemy.exc import IntegrityError
-from app.extensions import db
+from flask import Blueprint, jsonify, request
 from app.services.purchase_orders_service import PurchaseOrdersService
 from app.services.purchase_orders_items_service import PurchaseOrdersItemsService
-from app.models.purchase_orders_items import PurchaseOrdersItemsModel
 
 
 api_blueprint = Blueprint('api', __name__)
