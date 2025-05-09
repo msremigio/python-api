@@ -7,7 +7,7 @@ class PurchaseOrdersModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, index=True)
     description = db.Column(db.String(500), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now(), nullable=False)
-    status = db.Column(db.Enum(PurchaseOrderStatus, values_callable=lambda sts: [st.value for st in sts]), default=PurchaseOrderStatus.PENDING, nullable=False)
+    status = db.Column(db.Enum(PurchaseOrderStatus, name='purchase_order_status', values_callable=lambda sts: [st.value for st in sts]), default=PurchaseOrderStatus.PENDING, nullable=False)
 
     def to_dict(self):
         return {
