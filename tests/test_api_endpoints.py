@@ -20,9 +20,10 @@ def test_get_purchase_orders_by_id(test_client, seed_test_db):
     assert response.status_code == 200
     assert response.json['id'] == seed_test_db['po'].id
     assert response.json['description'] == seed_test_db['po'].description
+    assert response.json['status'] == seed_test_db['po'].status.value
 
 def test_get_purchase_orders_by_id_not_found(test_client):
-    id = 999
+    id = 9999
     response = test_client.get(f'/purchase_orders/{id}')
     
     assert response.status_code == 404
@@ -63,7 +64,7 @@ def test_get_purchase_orders_items_by_id(test_client, seed_test_db):
     assert response.json[0]['quantity'] == seed_test_db['poi'].quantity
 
 def test_get_purchase_orders_items_by_id_not_found(test_client):
-    id = 999
+    id = 9999
     response = test_client.get(f'/purchase_orders/{id}')
     
     assert response.status_code == 404
@@ -87,7 +88,7 @@ def test_post_purchase_orders_items_by_id(test_client, seed_test_db):
     assert response.json[1]['quantity'] == body[1]['quantity']
 
 def test_post_purchase_orders_items_by_id_not_found(test_client):
-    id = 999
+    id = 9999
     body = [{'description': f'First item from purchase order {id}', 'price': 99.99, 'quantity': 3}]
 
     response = test_client.post(
