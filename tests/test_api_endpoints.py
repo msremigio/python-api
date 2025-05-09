@@ -12,6 +12,7 @@ def test_get_purchase_orders(test_client, seed_test_db):
     assert response.status_code == 200
     assert response.json[0]['id'] == seed_test_db['po'].id
     assert response.json[0]['description'] == seed_test_db['po'].description
+    assert response.json[0]['status'] == seed_test_db['po'].status.value
 
 def test_get_purchase_orders_by_id(test_client, seed_test_db):
     response = test_client.get(f'/purchase_orders/{seed_test_db['po'].id}')
