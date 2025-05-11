@@ -22,12 +22,12 @@ def not_found(e):
 def internal_server_error(e):
      return jsonify(error = str(e)), 500
 
-@api_blueprint.route('/user', methods=['POST'])
+@api_blueprint.route('/users', methods=['POST'])
 def post_user():
     request_data = request.get_json()
     return UsersService.post_user(request_data)
 
-@api_blueprint.route('/user/authenticate', methods=['POST'])
+@api_blueprint.route('/users/authenticate', methods=['POST'])
 def user_auth():
     request_data = request.get_json()
     return UsersService.authenticate(request_data)

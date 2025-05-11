@@ -7,10 +7,10 @@ from app.models.users import UsersModel
 class UsersService:
     @staticmethod
     def post_user(request_data):
-        user = db.session.query.fiter_by(email=request_data['email']).first()
+        user = UsersModel.query.filter_by(email=request_data['email']).first()
         if user:
             return abort(400, description="An user with this e-mail has already been created.")
-        new_user = UsersModel(request_data['email'], pbkdf2_sha256.hash(request_data['password']))
+        new_user = UsersModel(email=request_data['email'], password=pbkdf2_sha256.hash(request_data['password']))
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -21,7 +21,7 @@ class UsersService:
     
     @staticmethod
     def authenticate(request_data):
-        user = db.session.query.fiter_by(email=request_data['email']).first()
+        user = UsersModel.query.filter_by(email=request_data['email']).first()
         if user:
             if pbkdf2_sha256.verify(request_data['password'], user.password):
                 access_token = create_access_token(identity=user.id)
