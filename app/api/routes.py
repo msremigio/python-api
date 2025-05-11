@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.services.purchase_orders_service import PurchaseOrdersService
 from app.services.purchase_orders_items_service import PurchaseOrdersItemsService
-
+from app.services.users_service import UsersService
 
 api_blueprint = Blueprint('api', __name__)
 
@@ -21,6 +21,16 @@ def not_found(e):
 @api_blueprint.errorhandler(500)
 def internal_server_error(e):
      return jsonify(error = str(e)), 500
+
+@api_blueprint.route('/user', methods=['POST'])
+def post_user():
+    request_data = request.get_json()
+    return UsersService.post_user(request_data)
+
+@api_blueprint.route('/user/authenticate', methods=['POST'])
+def user_auth():
+    request_data = request.get_json()
+    return UsersService.authenticate(request_data)
 
 @api_blueprint.route('/', methods=['GET'])
 def home():
