@@ -14,6 +14,10 @@ def bad_request(e):
 def not_found(e):
      return jsonify(error = str(e)), 404
 
+@api_blueprint.errorhandler(500)
+def internal_server_error(e):
+     return jsonify(error = str(e)), 500
+
 @api_blueprint.route('/', methods=['GET'])
 def home():
     return jsonify({'message': 'Welcome to the ***purchase_orders*** API homepage!'})
