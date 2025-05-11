@@ -24,6 +24,6 @@ class UsersService:
         user = UsersModel.query.filter_by(email=request_data['email']).first()
         if user:
             if pbkdf2_sha256.verify(request_data['password'], user.password):
-                access_token = create_access_token(identity=user.id)
+                access_token = create_access_token(identity=user.email)
                 return jsonify({'access_token': access_token})
         return abort(401, description="There is no existing user with the provided credentials.")
