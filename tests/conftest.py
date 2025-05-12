@@ -30,7 +30,7 @@ def test_db_session():
     test_session.remove()
     db.session = global_session
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='module', autouse=True)
 def seed_test_db(test_db_session):
     test_user_exists = UsersModel.query.filter_by(email='perm_test_user@email.com').first()
     if not test_user_exists:
@@ -43,7 +43,13 @@ def seed_test_db(test_db_session):
     insert_purchase_order_item = PurchaseOrdersItemsModel(description="Item for test purchase order", price=99.99, quantity=5, purchase_order_id=insert_purchase_order.id)
     test_db_session.add(insert_purchase_order_item)
     test_db_session.commit()
+
     yield {'po': insert_purchase_order, 'poi': insert_purchase_order_item}
+
+    test_db_session.query(PurchaseOrdersItemsModel).delete()
+    test_db_session.query(PurchaseOrdersModel).delete()
+    test_db_session.query(UsersModel).filter(UsersModel.email != 'perm_test_user@email.com').delete()
+    test_db_session.commit()
 
 @pytest.fixture(scope='module')
 def test_access_token(test_client):
@@ -56,10 +62,3 @@ def test_access_token(test_client):
     )
 
     yield response.json['access_token']
-
-@pytest.fixture(scope='module', autouse=True)
-def clear_test_db(test_db_session):
-    test_db_session.query(PurchaseOrdersItemsModel).delete()
-    test_db_session.query(PurchaseOrdersModel).delete()
-    test_db_session.query(UsersModel).filter(UsersModel.email != 'perm_test_user@email.com').delete()
-    test_db_session.commit()

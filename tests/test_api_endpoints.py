@@ -12,7 +12,7 @@ def test_post_user(test_client):
     assert response.status_code == 200
     assert response.json['email'] == body['email']
 
-def test_post_user_auth(test_client, seed_test_db):
+def test_post_user_auth(test_client):
     body = {'email': 'perm_test_user@email.com', 'password': 'testingapp'}
 
     response = test_client.post(
