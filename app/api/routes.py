@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
+from app.services.users_service import UsersService
 from app.services.purchase_orders_service import PurchaseOrdersService
 from app.services.purchase_orders_items_service import PurchaseOrdersItemsService
-from app.services.users_service import UsersService
+
 
 api_blueprint = Blueprint('api', __name__)
 
@@ -11,7 +12,7 @@ api_blueprint = Blueprint('api', __name__)
 def bad_request(e):
      return jsonify(error = str(e)), 400
 
-@api_blueprint.errorhandler(400)
+@api_blueprint.errorhandler(401)
 def unathorized(e):
      return jsonify(error = str(e)), 401
 
