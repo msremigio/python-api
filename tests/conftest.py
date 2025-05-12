@@ -1,6 +1,7 @@
 import pytest
 import json
 from sqlalchemy.orm import scoped_session, sessionmaker
+from passlib.hash import pbkdf2_sha256
 from app.main import create_app
 from app.extensions import db
 from app.models.users import UsersModel
@@ -34,7 +35,7 @@ def test_db_session():
 def seed_test_db(test_db_session):
     test_user_exists = UsersModel.query.filter_by(email='perm_test_user@email.com').first()
     if not test_user_exists:
-        insert_perm_test_user = UsersModel(email='perm_test_user@email.com', password='testingapp')
+        insert_perm_test_user = UsersModel(email='perm_test_user@email.com', password=pbkdf2_sha256.hash('testingapp'))
         test_db_session.add(insert_perm_test_user)
         test_db_session.commit()
     insert_purchase_order = PurchaseOrdersModel(description="Purchase order for test")
